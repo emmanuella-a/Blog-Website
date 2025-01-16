@@ -1,11 +1,235 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// src/pages/index.astro
+const posts = [
+  {
+    id: 1,
+    title: "The Art of Modern Photography",
+    excerpt:
+      "Exploring the intersection of classical composition and contemporary techniques in portrait photography.",
+    date: "Jan 15, 2024",
+    author: "Sarah Chen",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/jk.jpg-3oAZyqTQxMLF6pI5xv02ceU0XOD6q2.jpeg",
+  },
+  {
+    id: 2,
+    title: "Light and Shadow: A Visual Journey",
+    excerpt:
+      "Understanding how the interplay of light and shadow can create compelling visual narratives.",
+    date: "Jan 14, 2024",
+    author: "James Wilson",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hobi.jpg-fzae4IjVr2MPfrjwvspsmgQwg6i07D.jpeg",
+  },
+  {
+    id: 3,
+    title: "The Renaissance of Portrait Photography",
+    excerpt:
+      "How modern photographers are bringing back classical painting techniques to digital photography.",
+    date: "Jan 13, 2024",
+    author: "Emma Thompson",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/jin.jpg-qMMHFFFmqshrFrB750hLMu85fHiZbS.jpeg",
+  },
+  {
+    id: 4,
+    title: "Composition in Dark Photography",
+    excerpt:
+      "Mastering the art of composition when working with low-light and dark backgrounds.",
+    date: "Jan 12, 2024",
+    author: "Michael Chang",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/suga.jpg-QK6sVViULMFwP6my4DwvVQsxZbDR4p.jpeg",
+  },
+  {
+    id: 5,
+    title: "The Power of Minimalism",
+    excerpt:
+      "Why less is more: exploring minimalist approaches in modern photography.",
+    date: "Jan 11, 2024",
+    author: "Lisa Anderson",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/jimin.jpg-b7Ds4nMJajBwPEVpFmsN4hbd0ibZiD.jpeg",
+  },
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artistry Blog</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav
+      class="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg fixed w-full z-10"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex justify-between items-center">
+          <a
+            href="/"
+            class="text-2xl font-bold text-white hover:text-gray-200 transition"
+            >Artistry</a
+          >
+          <div class="flex space-x-4">
+            <a
+              href="/signin"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"
+              >Sign In</a
+            >
+            <a
+              href="/signup"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
+              >Sign Up</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header
+      class="relative h-screen flex items-center justify-center overflow-hidden"
+    >
+      <div class="absolute inset-0">
+        <img
+          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/rm.jpg-he1JqThbENF4LWDJh8vEYl3CHeGY9H.jpeg"
+          alt="Hero background"
+          class="w-full h-full object-cover opacity-30"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900/80 to-gray-900"
+        >
+        </div>
+      </div>
+      <div
+        class="relative max-w-7xl mx-auto text-center px-4 sm:px-6 lg:px-8 fade-in"
+      >
+        <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-4">
+          Welcome to Artistry
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-300 mb-8">
+          A space for creative minds to share their stories
+        </p>
+        <a
+          href="/create-post"
+          class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition"
+        >
+          Start Writing
+        </a>
+      </div>
+    </header>
+
+    <!-- Latest Posts -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <h2 class="text-3xl font-bold mb-12 text-center">Latest Posts</h2>
+      <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+        {
+          posts.map((post, index) => (
+            <article
+              class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition hover:transform hover:scale-105 fade-in"
+              style={`animation-delay: ${index * 0.1}s`}
+            >
+              <img
+                src={post.image || "/placeholder.svg"}
+                alt={post.title}
+                class="w-full h-48 object-cover"
+              />
+              <div class="p-6">
+                <p class="text-indigo-400 text-sm mb-2">{post.date}</p>
+                <h3 class="text-xl font-semibold mb-2">
+                  <a
+                    href={`/posts/${post.id}`}
+                    class="hover:text-indigo-400 transition"
+                  >
+                    {post.title}
+                  </a>
+                </h3>
+                <p class="text-gray-400 mb-4">{post.excerpt}</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-500">{post.author}</span>
+                  <a
+                    href={`/posts/${post.id}`}
+                    class="text-indigo-400 hover:text-indigo-300 text-sm font-medium transition"
+                  >
+                    Read more →
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Artistry</h3>
+            <p class="text-gray-400">
+              A platform for creative expression and storytelling.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+            <ul class="space-y-2 text-gray-400">
+              <li>
+                <a href="/about" class="hover:text-white transition">About</a>
+              </li>
+              <li>
+                <a href="/contact" class="hover:text-white transition"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold mb-4">Connect</h4>
+            <div class="flex space-x-4">
+              <a
+                href="https://x.com/?lang=en&mx=2"
+                class="text-gray-400 hover:text-white transition">Twitter</a
+              >
+              <a
+                href="https://www.instagram.com/"
+                class="text-gray-400 hover:text-white transition">Instagram</a
+              >
+              <a
+                href="https://www.linkedin.com/in/emmanuella-tabuanu-609275199/"
+                class="text-gray-400 hover:text-white transition">LinkedIn</a
+              >
+            </div>
+          </div>
+        </div>
+        <div
+          class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400"
+        >
+          <p>&copy; 2025 Artistry. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+    <script type="module" src="/script/index.js" is:inline></script>
+  </body>
+</html>
