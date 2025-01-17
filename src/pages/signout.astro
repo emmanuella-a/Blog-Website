@@ -1,0 +1,16 @@
+---
+import { signOut } from "@/scripts/supabaseClient";
+
+const { cookies } = Astro;
+
+cookies.delete("sb-access-token", { path: "/" });
+cookies.delete("sb-refresh-token", { path: "/" });
+
+const { error } = await signOut();
+
+if (error) {
+  console.error("Error signing out:", error.message);
+} else {
+  return Astro.redirect("/signin");
+}
+---

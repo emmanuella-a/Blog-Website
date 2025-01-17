@@ -1,5 +1,15 @@
 ---
+import Nav from "../components/Nav.astro";
+import { getCurrentUser } from "@/scripts/supabaseClient";
+
 // src/pages/profile.astro
+
+let _user = await getCurrentUser()!;
+
+if (Object.is(_user, null)) {
+  console.log("🚀 ~ _user:", _user);
+}
+
 const user = {
   name: "Jane Doe",
   email: "jane.doe@example.com",
@@ -22,31 +32,7 @@ const user = {
   </head>
   <body class="bg-gray-900 text-gray-100">
     <!-- Navigation -->
-    <nav
-      class="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg fixed w-full z-10"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <a
-            href="/"
-            class="text-2xl font-bold text-white hover:text-gray-200 transition"
-            >Artistry</a
-          >
-          <div class="flex items-center space-x-4">
-            <a href="/profile" class="text-gray-300 hover:text-white transition"
-              >Profile</a
-            >
-            <a
-              href="/manage-posts"
-              class="text-gray-300 hover:text-white transition">My Posts</a
-            >
-            <button class="text-gray-300 hover:text-white transition"
-              >Sign Out</button
-            >
-          </div>
-        </div>
-      </div>
-    </nav>
+    <Nav />
 
     <main class="pt-24 pb-12">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,8 +40,8 @@ const user = {
           <div class="p-6 sm:p-8">
             <div class="flex flex-col sm:flex-row items-center">
               <img
-                src={user.avatar || "/placeholder.svg"}
-                alt={user.name}
+                src={`https://api.dicebear.com/9.x/pixel-art/svg?seed=${user.name}`}
+                alt="user avatar"
                 class="w-32 h-32 rounded-full mb-4 sm:mb-0 sm:mr-8"
               />
               <div>

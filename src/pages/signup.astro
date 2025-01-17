@@ -1,3 +1,60 @@
+---
+import { signUp } from "@/scripts/supabaseClient";
+
+
+
+let errorMessage = "";
+let successMessage = "";
+
+interface RequestData {
+  name: string;
+  email: string;
+  password: string;
+  password_confirm: string;
+}
+
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+
+    // Convert formData into a plain object
+    const formObject = Object.fromEntries(formData) as {
+      [key: string]: FormDataEntryValue;
+    };
+
+    // Ensure the formObject has the expected types
+    const { name, email, password, password_confirm }: RequestData = {
+      name: formObject.name as string,
+      email: formObject.email as string,
+      password: formObject.password as string,
+      password_confirm: formObject.password_confirm as string,
+    };
+
+    const { data, error } = await signUp(email, password, name);
+
+    // Error handling
+    if (error) {
+      console.error("Supabase error:", error);
+      errorMessage = error.message;
+      return;
+    }
+
+    // SignUp successful
+    if (data?.user) {
+      console.log("Sign in successful:", data);
+      return Astro.redirect("/signin");
+    }
+
+    console.error("Unexpected response:", data);
+    errorMessage = "An unexpected error occurred";
+  } catch (e) {
+    console.error("Error processing form:", e);
+    errorMessage = "An error occurred while processing your request";
+  }
+}
+---
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,6 +64,7 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
   </head>
   <body class="bg-gray-900 text-gray-100 min-h-screen">
     <div class="min-h-screen flex">
@@ -18,7 +76,7 @@
             <h2 class="mt-6 text-3xl font-bold">Create your account</h2>
           </div>
 
-          <!-- {
+          {
             errorMessage && (
               <div class="bg-red-500 text-white p-3 rounded mb-4">
                 {errorMessage}
@@ -32,9 +90,9 @@
                 {successMessage}
               </div>
             )
-          } -->
+          }
 
-          <form class="space-y-6" method="POST">
+          <form class="space-y-6" method="POST" >
             <div>
               <label for="name" class="block text-sm font-medium text-gray-300"
                 >Full name</label
@@ -83,7 +141,7 @@
               >
               <input
                 id="confirm-password"
-                name="confirm-password"
+                name="password_confirm"
                 type="password"
                 required
                 class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -160,3 +218,18 @@
     </div>
   </body>
 </html>
+
+<script>
+  document?.querySelector("form").addEventListener("submit", async (e) => {
+    // e.preventDefault();
+    const formData = new FormData(e.target);
+    const password = formData.get("password")?.toString()
+    const password_confirm = formData.get("password_confirm")?.toString()
+
+    if (password_confirm !== password){
+      alert("password mismatch")
+      return
+    }
+    
+  });
+</script>
