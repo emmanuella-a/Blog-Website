@@ -1,40 +1,57 @@
 ---
-import { supabase } from "../scripts/supabaseClient";
+import { lbClient } from "@/scripts/localbaseClient";
+import { getCurrentUser, signIn, supabase } from "../scripts/supabaseClient";
+
+const { cookies, redirect } = Astro;
+
+let errorMessage = "";
+let successMessage = "";
 
 if (!supabase) {
   console.error("Supabase client is not initialized");
   errorMessage = "Unable to connect to the authentication service";
 }
 
-let errorMessage = "";
-let successMessage = "";
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (accessToken && refreshToken) {
+  return redirect("/profile");
+}
 
 if (Astro.request.method === "POST") {
   try {
     const formData = await Astro.request.formData();
-    console.log("Form Data:", Object.fromEntries(formData));
     const email = formData.get("email")?.toString();
     const password = formData.get("password")?.toString();
 
+    // input validation
     if (!email || !password) {
       errorMessage = "Email and password are required";
       return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-      options: {
-        redirectTo: `${Astro.url.origin}/home`,
-      },
-    });
-    console.log("Supabase response:", { data, error });
+    // Signin into supabase
+    const { data, error } = await signIn(email, password);
 
+    // error checking
     if (error) {
       console.error("Supabase error:", error);
       errorMessage = error.message;
     } else if (data?.user) {
-      console.log("Sign in successful:", data.user);
+      const { access_token, refresh_token } = data.session;
+
+      // store user details locally (IndexDB).
+      lbClient.collection("user").add(data);
+
+      // store session cookie
+      cookies.set("sb-access-token", access_token, {
+        path: "/",
+      });
+      cookies.set("sb-refresh-token", refresh_token, {
+        path: "/",
+      });
+
       return Astro.redirect("/home");
     } else {
       console.error("Unexpected response:", data);
@@ -47,12 +64,16 @@ if (Astro.request.method === "POST") {
 }
 
 // Check if user is already signed in
-const {
-  data: { user },
-} = await supabase.auth.getUser();
-if (user) {
+const user = await getCurrentUser();
+if (!Object.is(user, null)) {
   return Astro.redirect("/home");
 }
+
+// const accessToken = cookies.get("sb-access-token");
+// const refreshToken = cookies.get("sb-refresh-token");
+
+// if (accessToken && refreshToken) {
+//   return redirect("/dashboard");
 ---
 
 <html lang="en">

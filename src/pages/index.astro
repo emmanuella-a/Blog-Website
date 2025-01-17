@@ -1,4 +1,7 @@
 ---
+import Nav from '../components/Nav.astro'
+
+
 // src/pages/index.astro
 const posts = [
   {
@@ -81,31 +84,7 @@ const posts = [
   </head>
   <body class="bg-gray-900 text-gray-100 min-h-screen">
     <!-- Navigation -->
-    <nav
-      class="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg fixed w-full z-10"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <a
-            href="/"
-            class="text-2xl font-bold text-white hover:text-gray-200 transition"
-            >Artistry</a
-          >
-          <div class="flex space-x-4">
-            <a
-              href="/signin"
-              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"
-              >Sign In</a
-            >
-            <a
-              href="/signup"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
-              >Sign Up</a
-            >
-          </div>
-        </div>
-      </div>
-    </nav>
+    <Nav />
 
     <!-- Hero Section -->
     <header

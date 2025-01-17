@@ -1,0 +1,74 @@
+---
+import { getCurrentUser, signOut } from "@/scripts/supabaseClient";
+
+const { cookies, redirect } = Astro;
+
+// const user = await getCurrentUser();
+let isAuthenticated = false;
+
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (accessToken && refreshToken) {
+  isAuthenticated = true;
+}
+---
+
+<!-- User authenticated nav -->{
+  isAuthenticated ? (
+    <nav class="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg fixed w-full z-10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex justify-between items-center">
+          <a
+            href="/home"
+            class="text-2xl font-bold text-white hover:text-gray-200 transition"
+          >
+            Artistry
+          </a>
+          <div class="flex items-center space-x-4">
+            <a
+              href="/profile"
+              class="text-gray-300 hover:text-white transition"
+            >
+              Profile
+            </a>
+            <a
+              href="/manage-posts"
+              class="text-gray-300 hover:text-white transition"
+            >
+              My Posts
+            </a>
+            <a href="/signout">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  ) : (
+    <nav class="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg fixed w-full z-10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex justify-between items-center">
+          <a
+            href="/"
+            class="text-2xl font-bold text-white hover:text-gray-200 transition"
+          >
+            Artistry
+          </a>
+          <div class="flex space-x-4">
+            <a
+              href="/signin"
+              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition"
+            >
+              Sign In
+            </a>
+            <a
+              href="/signup"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
+            >
+              Sign Up
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+}

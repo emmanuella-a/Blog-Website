@@ -1,154 +1,206 @@
 ---
-// src/pages/create-post.astro
+import { getCurrentUser, supabase, createPost } from "@/scripts/supabaseClient";
+import Layout from "../layouts/Layout.astro";
+import { uploadImage } from "../scripts/supabaseClient";
+import { SUPABASE_IMAGE_BUCKET } from "../constants/supabase_constants";
+import { v4 as uuid4 } from "uuid";
+
+const { request, redirect } = Astro;
+
+let errorMessage = "";
+
+const user = await getCurrentUser();
+
+
+if (request.method === "POST") {
+  const formData = await request.formData();
+
+  // form data
+  // const file_upload = formData.get("file-upload");
+  const title = formData.get("title")?.toString()!;
+  const content = formData.get("content")?.toString()!;
+  const tags = formData.get("tags")?.toString()!;
+  const _new_form_data = { title, content, tags, user_id: user?.id!, is_published: true }
+
+  const { error, data } = await createPost(_new_form_data);
+
+  // upload image
+  // const uploadFolder = `${user?.id}/${uuid4()}`;
+  // const { data: imageUploadData, error } = await uploadImage(
+  //   file_upload! as File,
+  //   SUPABASE_IMAGE_BUCKET,
+  //   uploadFolder
+  // );
+
+  if (error) {
+    console.log("🚀 ~ error:", error);
+  }
+
+  if (data){
+    return redirect('/manage-posts')
+  }
+
+}
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Post - Artistry</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-gray-900 text-gray-100">
-    <!-- Navigation -->
-    <nav
-      class="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg fixed w-full z-10"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex justify-between items-center">
-          <a
-            href="/"
-            class="text-2xl font-bold text-white hover:text-gray-200 transition"
-            >Artistry</a
-          >
-          <div class="flex items-center space-x-4">
-            <a href="/profile" class="text-gray-300 hover:text-white transition"
-              >Profile</a
+<Layout>
+  <main class="pt-24 pb-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-gray-800 rounded-lg shadow-xl p-6 md:p-8">
+        <h1 class="text-3xl font-bold mb-8">Create New Post</h1>
+        {
+          errorMessage !== "" && (
+            <div class="bg-red-600 p-3 h-full h-10">{errorMessage}</div>
+          )
+        }
+
+        <form class="space-y-6" enctype="multipart/form-data" method="post">
+          <!-- title -->
+          <div>
+            <label
+              for="title"
+              class="block text-sm font-medium text-gray-300 mb-2">Title</label
             >
-            <a
-              href="/manage-posts"
-              class="text-gray-300 hover:text-white transition">My Posts</a
-            >
-            <button class="text-gray-300 hover:text-white transition"
-              >Sign Out</button
-            >
+            <input
+              type="text"
+              id="title"
+              name="title"
+              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="Enter your post title"
+              required
+            />
           </div>
-        </div>
-      </div>
-    </nav>
 
-    <main class="pt-24 pb-12">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-gray-800 rounded-lg shadow-xl p-6 md:p-8">
-          <h1 class="text-3xl font-bold mb-8">Create New Post</h1>
-
-          <form class="space-y-6">
-            <div>
-              <label
-                for="title"
-                class="block text-sm font-medium text-gray-300 mb-2"
-                >Title</label
-              >
-              <input
-                type="text"
-                id="title"
-                name="title"
-                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Enter your post title"
-              />
-            </div>
-
-            <div>
-              <label
-                for="cover-image"
-                class="block text-sm font-medium text-gray-300 mb-2"
-                >Cover Image</label
-              >
-              <div
-                class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-600 border-dashed rounded-md hover:border-indigo-500 transition-colors"
-              >
-                <div class="space-y-1 text-center">
-                  <svg
-                    class="mx-auto h-12 w-12 text-gray-400"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 48 48"
-                    aria-hidden="true"
+          <!-- image -->
+          <!-- <div>
+            <label
+              for="file-upload"
+              class="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Cover Image
+            </label>
+            <div
+              class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-600 border-dashed rounded-md hover:border-indigo-500 transition-colors"
+            >
+              <div class="space-y-1 text-center">
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+                <div class="flex text-sm text-gray-400">
+                  <label
+                    for="file-upload"
+                    class="relative cursor-pointer rounded-md font-medium text-indigo-400 hover:text-indigo-300"
                   >
-                    <path
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"></path>
-                  </svg>
-                  <div class="flex text-sm text-gray-400">
-                    <label
-                      for="file-upload"
-                      class="relative cursor-pointer rounded-md font-medium text-indigo-400 hover:text-indigo-300"
-                    >
-                      <span>Upload a file</span>
-                      <input
-                        id="file-upload"
-                        name="file-upload"
-                        type="file"
-                        class="sr-only"
-                      />
-                    </label>
-                    <p class="pl-1">or drag and drop</p>
-                  </div>
-                  <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                    <span>Upload a file</span>
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      class="sr-only"
+                      accept="image/png, image/jpeg, image/gif"
+                      required
+                    />
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
                 </div>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
               </div>
             </div>
+            <img
+              id="preview-img"
+              style="display: none;"
+              alt="Preview"
+              class="mt-4 mx-auto max-h-48"
+            />
+          </div> -->
 
-            <div>
-              <label
-                for="content"
-                class="block text-sm font-medium text-gray-300 mb-2"
-                >Content</label
-              >
-              <textarea
-                id="content"
-                name="content"
-                rows="12"
-                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Write your post content here..."></textarea>
-            </div>
+          <!-- content -->
+          <div>
+            <label
+              for="content"
+              class="block text-sm font-medium text-gray-300 mb-2"
+              >Content</label
+            >
+            <textarea
+              id="content"
+              name="content"
+              rows="12"
+              required
+              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="Write your post content here..."></textarea>
+          </div>
 
-            <div>
-              <label
-                for="tags"
-                class="block text-sm font-medium text-gray-300 mb-2">Tags</label
-              >
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Enter tags separated by commas"
-              />
-            </div>
+          <!-- tags -->
+          <div>
+            <label
+              for="tags"
+              class="block text-sm font-medium text-gray-300 mb-2">Tags</label
+            >
+            <input
+              type="text"
+              id="tags"
+              name="tags"
+              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="Enter tags separated by commas"
+            />
+          </div>
 
-            <div class="flex justify-end space-x-4">
-              <button
-                type="button"
-                class="px-4 py-2 border border-gray-600 rounded-md text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-              >
-                Save as Draft
-              </button>
-              <button
-                type="submit"
-                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Publish
-              </button>
-            </div>
-          </form>
-        </div>
+          <div class="flex justify-end space-x-4">
+            <button
+              type="button"
+              class="px-4 py-2 border border-gray-600 rounded-md text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              Save as Draft
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Publish
+            </button>
+          </div>
+        </form>
       </div>
-    </main>
-  </body>
-</html>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  document
+    .getElementById("file-upload")
+    ?.addEventListener("change", previewImage);
+
+  function previewImage(event: Event): void {
+    const target = event.target as HTMLInputElement; // Cast the target to HTMLInputElement
+    const file = target.files?.[0]; // Access the selected file
+    const previewImg = document.getElementById(
+      "preview-img"
+    ) as HTMLImageElement; // Get the image element
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function (e: ProgressEvent<FileReader>) {
+        if (e.target?.result) {
+          previewImg.src = e.target.result as string; // Set the image source
+          previewImg.style.display = "block";
+        }
+      };
+
+      reader.readAsDataURL(file); // Read the file as a data URL
+    } else {
+      previewImg.src = ""; // Clear the preview if no file is selected
+      previewImg.style.display = "none";
+    }
+  }
+</script>
