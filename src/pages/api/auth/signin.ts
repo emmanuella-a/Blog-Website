@@ -5,7 +5,7 @@ import { signIn, supabase } from "../../../scripts/supabaseClient";
 
 
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, redirect, cookies }) => {
   try {
     const formData = await request.formData();
     const email = formData.get("email")?.toString();
@@ -18,7 +18,6 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const { data, error } = await signIn(email, password)
-    console.log("🚀 ~ constPOST:APIRoute= ~ data:", data)
 
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), {
@@ -26,16 +25,15 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // const { access_token, refresh_token } = data.session;
-    // cookies.set("sb-access-token", access_token, {
-    //   path: "/",
-    // });
-    // cookies.set("sb-refresh-token", refresh_token, {
-    //   path: "/",
-    // });
-    // return redirect("/dashboard");
+    const { access_token, refresh_token } = data.session!;
+    cookies.set("sb-access-token", access_token, {
+      path: "/",
+    });
+    cookies.set("sb-refresh-token", refresh_token, {
+      path: "/",
+    });
+    return redirect("/dashboard");
 
-    return Response.redirect("/home");
 
   } catch (e) {
     console.error("Error:", e);
