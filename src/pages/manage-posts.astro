@@ -1,13 +1,12 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { getCurrentUser, getUserPost, getLocalUser } from "@/scripts/supabaseClient";
+import { getCurrentUser, getUserPost } from "@/scripts/supabaseClient";
 
 let errorMessage = ""
 
 // src/pages/manage-posts.astro
-const user = await getLocalUser()
+const user = await getCurrentUser()
 console.log("🚀 ~ user:", user)
-
 const { posts, error } = await getUserPost(user?.id!)
 
 if (error) {
@@ -33,6 +32,12 @@ if (Object.is(posts, null)){
           Create New Post
         </a>
       </div>
+
+      {
+        errorMessage !== "" && (
+          <div class="w-full h-10 p-3 bg-red-500 text-white mb-5 rounded-md">{errorMessage}</div>
+        )
+      }
 
       <div class="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
         <table class="min-w-full divide-y divide-gray-700">

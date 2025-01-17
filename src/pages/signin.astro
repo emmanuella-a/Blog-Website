@@ -1,11 +1,11 @@
 ---
-import { lbClient } from "@/scripts/localbaseClient";
 import { getCurrentUser, signIn, supabase } from "../scripts/supabaseClient";
 
 const { cookies, redirect } = Astro;
 
 let errorMessage = "";
 let successMessage = "";
+let userDetails = {};
 
 if (!supabase) {
   console.error("Supabase client is not initialized");
@@ -40,9 +40,6 @@ if (Astro.request.method === "POST") {
       errorMessage = error.message;
     } else if (data?.user) {
       const { access_token, refresh_token } = data.session;
-
-      // store user details locally (IndexDB).
-      lbClient.collection("user").add(data);
 
       // store session cookie
       cookies.set("sb-access-token", access_token, {
@@ -134,7 +131,6 @@ if (!Object.is(user, null)) {
           }
 
           <form
-            action=""
             method="post"
             enctype="application/x-www-form-urlencoded"
             class="space-y-6"
@@ -221,3 +217,4 @@ if (!Object.is(user, null)) {
     </div>
   </body>
 </html>
+
